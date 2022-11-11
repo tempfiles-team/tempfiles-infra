@@ -1,19 +1,30 @@
 apiVersion: v1
 kind: ConfigMap
-
 metadata:
   name: tempfiles-backend-config
-
 data:
-  BACKEND_BASEURL: https://tfb.minpeter.cf
-  BACKEND_PORT: 5000
+  BACKEND_BASEURL: https://api.tempfiles.ml
+  BACKEND_PORT: "5000"
   JWT_SECRET: simplesecret@@
 
-  DB_HOST: localhost
-  DB_PORT: 5432
+  DB_HOST: tempfiles-psql-svc
+  DB_PORT: "5432"
   DB_NAME: tempfilesdb
   DB_USER: admin
   DB_PASSWORD: simplesecret@@
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tempfiles-backend-pvc
+spec:
+  storageClassName: openebs-hostpath
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 40Gi
 
 ---
 apiVersion: apps/v1
@@ -21,7 +32,7 @@ kind: Deployment
 metadata:
   name: tempfiles-backend-deploy
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: tf-backpod
@@ -34,12 +45,19 @@ spec:
       containers:
         - name: tempfiles-backend-container
           image: minpeter/tempfiles-backend
+          ports:
+            - containerPort: 5000
+              name: tf-back-port
           envFrom:
             - configMapRef:
                 name: tempfiles-backend-config
-          ports:
-            - containerPort: 5000
-              name: tf-backend-port
+          volumeMounts:
+            - mountPath: /app/tmp
+              name: backend-storage
+      volumes:
+        - name: backend-storage
+          persistentVolumeClaim:
+            claimName: tempfiles-backend-pvc
 
 ---
 apiVersion: v1
@@ -49,8 +67,8 @@ metadata:
 spec:
   ports:
     - name: tf-backend-svc-port
-      port: 80
-      targetPort: tf-backend-port
+      port: 5000
+      targetPort: tf-back-port
   selector:
     app: tf-backpod
   type: ClusterIP

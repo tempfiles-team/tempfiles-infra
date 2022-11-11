@@ -15,19 +15,19 @@ spec:
     solvers:
       - http01:
           ingress:
-            class: tempfiles-nginx
+            class: nginx
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-example
+  name: tempfiles-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/proxy-body-size: "1024m"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "10m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "10m"
-    kubernetes.io/ingress.class: "tempfiles-nginx"
+    kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true"
     ingress.kubernetes.io/ssl-redirect: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -36,7 +36,7 @@ spec:
     - hosts:
         - tempfiles.ml
         - api.tempfiles.ml
-      secretName: test-tls-cert
+      secretName: tempfiles-tls
 
   rules:
     - host: tempfiles.ml
@@ -58,4 +58,4 @@ spec:
               service:
                 name: tempfiles-backend-svc
                 port:
-                  number: 80
+                  number: 5000

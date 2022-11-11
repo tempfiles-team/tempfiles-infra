@@ -1,10 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
-
 metadata:
   name: tempfiles-frontend-config
 data:
-  REACT_APP_BACKEND_BASEURL: "https://api.tempfiles.ml"
+  REACT_APP_BACKEND_BASEURL: "http://tempfiles-backend-svc:5000"
 
 ---
 apiVersion: apps/v1
@@ -30,7 +29,7 @@ spec:
                 name: tempfiles-frontend-config
           ports:
             - containerPort: 80
-              name: tf-frontend-port
+              name: tf-front-port
 
 ---
 apiVersion: v1
@@ -41,7 +40,7 @@ spec:
   ports:
     - name: tf-frontend-svc-port
       port: 80
-      targetPort: tf-frontend-port
+      targetPort: tf-front-port
   selector:
     app: tf-frontpod
   type: ClusterIP
