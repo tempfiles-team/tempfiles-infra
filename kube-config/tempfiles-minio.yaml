@@ -1,61 +1,73 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tempfiles-psql-config
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: tempfilesdb
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: simplesecret@@
+
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: tempfiles-minio-pvc
+  name: tempfiles-psql-pvc
 spec:
   storageClassName: openebs-hostpath
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
-      storage: 10Gi
+      storage: 5Gi
 
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tempfiles-minio-deploy
+  name: tempfiles-psql-deploy
 
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: tf-miniopod
-
-  strategy:
-    type: Recreate
-
+      app: tf-psqlpod
   template:
     metadata:
       labels:
-        app: tf-miniopod
-
+        app: tf-psqlpod
     spec:
-      volumes:
-      - name: storage
-        persistentVolumeClaim:
-          claimName: tempfiles-minio-pvc
-
       containers:
-      - name: tempfiles-minio-container
-        image: minio/minio:latest
-        args:
-        - server
-        - /storage
-        env:
-        - name: MINIO_ACCESS_KEY
-          value: "minio"
-        - name: MINIO_SECRET_KEY
-          value: "minio123"
-        ports:
-        - containerPort: 9000
-          name: tf-minio-port
-        volumeMounts:
-        - name: storage
-          mountPath: "/storage"
+        - name: tempfiles-postgres-container
+          image: postgres:alpine
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+              name: tf-psql-port
+          envFrom:
+            - configMapRef:
+                name: tempfiles-psql-config
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgredb-storage
+          args:
+            - server
+            - /storage
+          env:
+            - name: MINIO_ACCESS_KEY
+              value: "minio"
+            - name: MINIO_SECRET_KEY
+              value: "minio123"
+          volumeMounts:
+            - name: storage
+              mountPath: "/storage"
+      volumes:
+        - name: postgredb-storage
+          persistentVolumeClaim:
+            claimName: tempfiles-minio-pvc
 
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
