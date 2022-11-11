@@ -9,11 +9,24 @@ data:
   BACKEND_PORT: 5000
   JWT_SECRET: simplesecret@@
 
-  DB_HOST: localhost
+  DB_HOST: tempfiles-psql-svc
   DB_PORT: 5432
   DB_NAME: tempfilesdb
   DB_USER: admin
   DB_PASSWORD: simplesecret@@
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tempfiles-backend-pvc
+spec:
+  storageClassName: openebs-hostpath
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 40Gi
 
 ---
 apiVersion: apps/v1
@@ -34,12 +47,19 @@ spec:
       containers:
         - name: tempfiles-backend-container
           image: minpeter/tempfiles-backend
-          envFrom:
-            - configMapRef:
-                name: tempfiles-backend-config
           ports:
             - containerPort: 5000
               name: tf-backend-port
+          envFrom:
+            - configMapRef:
+                name: tempfiles-backend-config
+          volumeMounts:
+            - mountPath: /app/tmp
+              name: backend-storage
+      volumes:
+        - name: backend-storage
+          persistentVolumeClaim:
+            claimName: tempfiles-backend-pvc
 
 ---
 apiVersion: v1
