@@ -65,18 +65,18 @@ spec:
       volumes:
         - name: postgredb-storage
           persistentVolumeClaim:
-            claimName: tempfiles-minio-pvc
+            claimName: tempfiles-psql-pvc
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: tempfiles-minio-svc
+  name: tempfiles-psql-svc
 spec:
   type: ClusterIP
   ports:
-    - name: tf-minio-svc-port
-      port: 9000
-      targetPort: tf-minio-port
+    - name: tf-psql-svc-port
+      port: 5432
+      targetPort: tf-psql-port
   selector:
-    app: tf-miniopod
+    app: tf-psqlpod
