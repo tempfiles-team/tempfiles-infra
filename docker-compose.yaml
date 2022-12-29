@@ -19,7 +19,7 @@ services:
     image: minpeter/tempfiles-backend:latest
     restart: always
     volumes:
-      - ./compose_data/backend:/app/tmp
+      - ./compose_data/backend:/tmp
     environment:
       - BACKEND_BASEURL=https://api.tempfiles.ml
       - BACKEND_PORT=5000
