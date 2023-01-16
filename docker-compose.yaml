@@ -5,21 +5,23 @@ services:
     container_name: tempfiles-frontend
     image: ananjaemin/tempfiles-frontend:latest
     restart: always
-    volumes:
-      - ./compose_data/frontend:/usr/share/nginx/html
     depends_on:
       - backend
     labels:
+      - traefik.enable=true
       - traefik.http.routers.tmp-frontend.rule=Host(`tempfiles.ml`)
+      - traefik.http.services.tmp-frontend.loadbalancer.server.port=80
+      - "traefik.http.routers.tmp-frontend.entrypoints=websecure"
+      - "traefik.http.routers.tmp-frontend.tls.certresolver=myresolver"
     networks:
-      - traefik_default
+      - traefik
 
   backend:
     container_name: tempfiles-backend
     image: minpeter/tempfiles-backend:latest
     restart: always
     volumes:
-      - ./compose_data/backend:/tmp
+      - tempfiles-backend:/tmp
     environment:
       - BACKEND_BASEURL=https://api.tempfiles.ml
       - BACKEND_PORT=5000
@@ -32,26 +34,33 @@ services:
     depends_on:
       - db
     labels:
+      - traefik.enable=true
       - traefik.http.routers.tmp-backend.rule=Host(`api.tempfiles.ml`)
       - traefik.http.services.tmp-backend.loadbalancer.server.port=5000
+      - "traefik.http.routers.tmp-backend.entrypoints=websecure"
+      - "traefik.http.routers.tmp-backend.tls.certresolver=myresolver"
     networks:
-      - traefik_default
+      - traefik
 
   db:
     container_name: tempfiles-db
     image: postgres:latest
     restart: always
     volumes:
-      - ./compose_data/db:/var/lib/postgresql/data
+      - tempfiles-db:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=postgres
     networks:
-      - traefik_default
+      - traefik
 
 networks:
-  traefik_default:
-    driver: bridge
+  traefik:
     external: true
-    internal: true
+
+volumes:
+  tempfiles-db:
+    driver: local
+  tempfiles-backend:
+    driver: local
