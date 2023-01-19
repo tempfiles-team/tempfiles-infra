@@ -17,14 +17,13 @@ services:
       - traefik
 
   backend:
-    container_name: tempfiles-backend
     image: minpeter/tempfiles-backend:latest
     restart: always
+    deploy:
+      replicas: 1
     volumes:
       - tempfiles-backend:/tmp
     environment:
-      - BACKEND_BASEURL=https://api.tempfiles.ml
-      - BACKEND_PORT=5000
       - JWT_SECRET=simplesecret
       - DB_HOST=db
       - DB_PORT=5432
@@ -61,6 +60,4 @@ networks:
 
 volumes:
   tempfiles-db:
-    driver: local
   tempfiles-backend:
-    driver: local
