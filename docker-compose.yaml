@@ -9,18 +9,16 @@ services:
       - backend
     labels:
       - traefik.enable=true
-      - traefik.http.routers.tmp-frontend.rule=Host(`tempfiles.ml`)
+      - traefik.http.routers.tmp-frontend.rule=Host(`tmpf.me`)
       - traefik.http.services.tmp-frontend.loadbalancer.server.port=80
-      - "traefik.http.routers.tmp-frontend.entrypoints=websecure"
-      - "traefik.http.routers.tmp-frontend.tls.certresolver=myresolver"
+      - traefik.http.routers.tmp-frontend.entrypoints=websecure
+      - traefik.http.routers.tmp-frontend.tls.certresolver=myresolver
     networks:
       - traefik
 
   backend:
     image: minpeter/tempfiles-backend:latest
     restart: always
-    deploy:
-      replicas: 1
     volumes:
       - tempfiles-backend:/tmp
     environment:
@@ -34,10 +32,10 @@ services:
       - db
     labels:
       - traefik.enable=true
-      - traefik.http.routers.tmp-backend.rule=Host(`api.tempfiles.ml`)
+      - traefik.http.routers.tmp-backend.rule=Host(`api.tmpf.me`)
       - traefik.http.services.tmp-backend.loadbalancer.server.port=5000
-      - "traefik.http.routers.tmp-backend.entrypoints=websecure"
-      - "traefik.http.routers.tmp-backend.tls.certresolver=myresolver"
+      - traefik.http.routers.tmp-backend.entrypoints=websecure
+      - traefik.http.routers.tmp-backend.tls.certresolver=myresolver
     networks:
       - traefik
 
