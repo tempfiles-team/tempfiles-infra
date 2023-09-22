@@ -17,6 +17,7 @@ services:
       - traefik
 
   backend:
+    container_name: tempfiles-backend
     image: minpeter/tempfiles-backend:latest
     restart: always
     volumes:
@@ -40,7 +41,7 @@ services:
       - traefik
 
   db:
-    container_name: tempfiles-db
+    container_name: tempfiles-database
     image: postgres:latest
     restart: always
     volumes:
