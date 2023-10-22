@@ -24,13 +24,7 @@ services:
       - tempfiles-backend:/tmp
     environment:
       - JWT_SECRET=simplesecret
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_NAME=postgres
-      - DB_USER=admin
-      - DB_PASSWORD=admin
-    depends_on:
-      - db
+      - DB_TYPE=sqlite
     labels:
       - traefik.enable=true
       - traefik.http.routers.tmp-backend.rule=Host(`api.tmpf.me`)
@@ -40,23 +34,10 @@ services:
     networks:
       - traefik
 
-  db:
-    container_name: tempfiles-database
-    image: postgres:latest
-    restart: always
-    volumes:
-      - tempfiles-db:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=postgres
-    networks:
-      - traefik
 
 networks:
   traefik:
     external: true
 
 volumes:
-  tempfiles-db:
   tempfiles-backend:
