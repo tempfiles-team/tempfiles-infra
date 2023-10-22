@@ -34,6 +34,38 @@ services:
     networks:
       - traefik
 
+  new-frontend:
+    container_name: tempfiles-frontend-v2
+    image: minpeter/tempfiles-frontend-v2:latest
+    restart: always
+    depends_on:
+      - backend
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tmp-frontend.rule=Host(`new.tmpf.me`)
+      - traefik.http.services.tmp-frontend.loadbalancer.server.port=80
+      - traefik.http.routers.tmp-frontend.entrypoints=websecure
+      - traefik.http.routers.tmp-frontend.tls.certresolver=myresolver
+    networks:
+      - traefik
+
+  dev-backend:
+    container_name: tempfiles-backend-dev
+    image: minpeter/tempfiles-backend:latest-dev
+    restart: always
+    volumes:
+      - tempfiles-backend-dev:/tmp
+    environment:
+      - JWT_SECRET=simplesecret
+      - DB_TYPE=sqlite
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tmp-backend.rule=Host(`dev.tmpf.me`)
+      - traefik.http.services.tmp-backend.loadbalancer.server.port=5000
+      - traefik.http.routers.tmp-backend.entrypoints=websecure
+      - traefik.http.routers.tmp-backend.tls.certresolver=myresolver
+    networks:
+      - traefik
 
 networks:
   traefik:
@@ -41,3 +73,4 @@ networks:
 
 volumes:
   tempfiles-backend:
+  tempfiles-backend-dev:
