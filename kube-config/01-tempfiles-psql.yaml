@@ -15,7 +15,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: tempfiles-psql-pvc
 spec:
-  storageClassName: openebs-hostpath
+  storageClassName: local-path
   accessModes:
     - ReadWriteOnce
   resources:

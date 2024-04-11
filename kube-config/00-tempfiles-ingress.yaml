@@ -1,45 +1,17 @@
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt-prod
-spec:
-  acme:
-    # The ACME server URL
-    server: https://acme-v02.api.letsencrypt.org/directory
-    # Email address used for ACME registration
-    email: kali2005611@gmail.com
-    # Name of a secret used to store the ACME account private key
-    privateKeySecretRef:
-      name: letsencrypt-prod
-    # Enable the HTTP-01 challenge provider
-    solvers:
-      - http01:
-          ingress:
-            class: nginx
-
----
+ 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: tempfiles-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/proxy-body-size: "1024m"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "10m"
-    kubernetes.io/ingress.class: "nginx"
-    kubernetes.io/tls-acme: "true"
-    ingress.kubernetes.io/ssl-redirect: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   tls:
     - hosts:
-        - tempfiles.ml
-        - api.tempfiles.ml
+        - tmp.k3s.minpeter.xyz
+        - tmp-api.k3s.minpeter.xyz
       secretName: tempfiles-tls
 
   rules:
-    - host: tempfiles.ml
+    - host: tmp.k3s.minpeter.xyz
       http:
         paths:
           - path: /
@@ -49,7 +21,7 @@ spec:
                 name: tempfiles-frontend-svc
                 port:
                   number: 80
-    - host: api.tempfiles.ml
+    - host: tmp-api.k3s.minpeter.xyz
       http:
         paths:
           - path: /

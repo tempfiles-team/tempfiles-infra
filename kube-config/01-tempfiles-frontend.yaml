@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: tempfiles-frontend-config
 data:
-  REACT_APP_BACKEND_BASEURL: "https://api.tempfiles.ml"
+  VITE_APP_BACKEND_BASEURL: "https://tmp-api.k3s.minpeter.xyz/"
 
 ---
 apiVersion: apps/v1

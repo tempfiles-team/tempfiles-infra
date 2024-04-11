@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: tempfiles-backend-config
 data:
-  BACKEND_BASEURL: https://api.tempfiles.ml
+  BACKEND_BASEURL: https://tmp-api.k3s.minpeter.xyz
   BACKEND_PORT: "5000"
   JWT_SECRET: simplesecret@@
 
@@ -19,7 +19,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: tempfiles-backend-pvc
 spec:
-  storageClassName: openebs-hostpath
+  storageClassName: local-path
   accessModes:
     - ReadWriteOnce
   resources:
@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
         - name: tempfiles-backend-container
-          image: minpeter/tempfiles-backend
+          image: ghcr.io/tempfiles-team/tempfiles-backend:main
           ports:
             - containerPort: 5000
               name: tf-back-port
